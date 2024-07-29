@@ -1,0 +1,116 @@
+---
+title: "Example knitr/R Markdown document"
+author: "Your name"
+date: "22/5/2020"
+output:
+  word_document: default
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(message=FALSE)
+knitr::opts_chunk$set(dpi = 300) 
+```
+
+# Load necessary library
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+  pacman::p_load(ggplot2, tidyr, dplyr, tidyverse, knitr, finalfit, here)
+```
+
+# Demographic Table
+
+```{r warning=FALSE}
+# Specify explanatory variables of interest
+explanatory <- c("age", "sex.factor", 
+                "extent.factor", "obstruct.factor", 
+                "nodes")
+
+colon_s %>% 
+  summary_factorlist("differ.factor", explanatory,
+                     p=TRUE, na_include=TRUE)
+```
+
+# Generate Final Table
+
+```{r warning=FALSE}
+colon_s <- colon_s %>% 
+  mutate(
+    nodes = ff_label(nodes, "Lymph nodes involved")
+    )
+
+table1 <- colon_s %>%  
+  summary_factorlist("differ.factor", explanatory, 
+                     p=TRUE, na_include=TRUE, 
+                     add_dependent_label=TRUE,
+                     dependent_label_prefix = "Exposure: "
+                     )
+table1
+```
+
+# Logistic Regression Table
+
+```{r warning=FALSE}
+explanatory <- c( "differ.factor", "age", "sex.factor", 
+                "extent.factor", "obstruct.factor", 
+                "nodes")
+dependent <- "mort_5yr"
+table2 <- colon_s %>% 
+  finalfit(dependent, explanatory, 
+           dependent_label_prefix = "")
+table2
+```
+
+# Odds Ratio Plot
+
+```{r warning=FALSE}
+colon_s %>% 
+  or_plot(dependent, explanatory, 
+          breaks = c(0.5, 1, 5, 10, 20, 30),
+          table_text_size = 2.5)
+```
+
+# Save objects for knitr/markdown
+
+```{r}
+# creat folder
+dir.create(here::here("data"), showWarnings = FALSE, recursive = TRUE)
+
+# Verify the path
+file_path <- here::here("data", "out.rda")
+print(file_path)
+
+# Save the objects
+save(table1, table2, dependent, explanatory, file = file_path)
+```
+
+## Load Data
+
+```{r}
+load(here::here("data", "out.rda"))
+
+```
+
+## Table 1 - Demographics
+
+```{r table1, echo = FALSE, warning=FALSE}
+kable(table1, row.names=FALSE, align=c("l", "l", "r", "r", "r", "r"))
+```
+
+## Table 2 - Association between tumour factors and 5-year mortality
+
+```{r table2, echo = FALSE, warning=FALSE}
+kable(table2, row.names=FALSE, align=c("l", "l", "r", "r", "r", "r"))
+```
+
+## Figure 1 - Association between tumour factors and 5-year mortality
+
+```{r figure1, echo = FALSE, warning=FALSE}
+explanatory = c( "differ.factor", "age", "sex.factor", 
+                "extent.factor", "obstruct.factor", 
+                "nodes")
+dependent = "mort_5yr"
+colon_s %>% 
+  or_plot(dependent, explanatory, breaks = c(0.5, 1, 5, 10, 20, 30),
+          table_text_size = 2.5)
+```

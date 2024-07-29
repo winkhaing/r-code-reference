@@ -1,3 +1,22 @@
+---
+title: "R Code Reference"
+author: "Win Khaing"
+format: pdf
+editor: visual
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(message=FALSE)
+```
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+  pacman::p_load(ggplot2, tidyr, dplyr, tidyverse, knitr, finalfit, here)
+```
+
+## Contigency Table (2x2 Table)
+
+```{r}
 library(tidyverse)
 library(gtsummary)
 
@@ -5,23 +24,25 @@ data(CO2)
 head(CO2)
 
 # basic summary table
-CO2 %>% select(!c(Plant,conc)) %>% tbl_summary()
+CO2 %>% select(!c(Plant, conc)) %>% tbl_summary()
 
 # summary split by a categorical variable
-CO2 %>% select(!c(Plant,conc)) %>% tbl_summary(by = Type)
+CO2 %>% select(!c(Plant, conc)) %>% tbl_summary(by = Type)
 
 # summary split by a categorical variable with p-value
-CO2 %>% select(!c(Plant,conc)) %>% 
+CO2 %>% select(!c(Plant, conc)) %>%
   tbl_summary(by = Type) %>% add_p()
 
 # include overall, extra heading, custom stats
-CO2 %>% select(!c(Plant,conc)) %>%
+CO2 %>% select(!c(Plant, conc)) %>%
   tbl_summary(
     by = Type,
     statistic = list(
       all_continuous() ~ "{mean} ({sd})",
       all_categorical() ~ "{n} / {N} ({p}%)"
-    ), digits = all_continuous() ~ 2) %>% 
+    ),
+    digits = all_continuous() ~ 2
+  ) %>%
   add_p() %>% add_overall() %>%
   modify_spanning_header(c("stat_1", "stat_2") ~ "**Location**") %>%
   bold_labels()
@@ -30,9 +51,8 @@ CO2 %>% select(!c(Plant,conc)) %>%
 CO2 %>%
   tbl_cross(
     row = Type,
-    col = Treatment,
-    percent = "cell"
+    col = Treatment, percent = "cell"
   ) %>%
   add_p() %>%
   bold_labels()
-
+```
