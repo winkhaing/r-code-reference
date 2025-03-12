@@ -1,6 +1,8 @@
 library(tidyverse)
 library(gtsummary)
-
+library(flextable)
+library(gt)
+library(table1)
 data(CO2)
 head(CO2)
 
@@ -27,7 +29,7 @@ CO2 %>% select(!c(Plant,conc)) %>%
   bold_labels()
 
 # crosstabs
-CO2 %>%
+CO2_tab <- CO2 %>%
   tbl_cross(
     row = Type,
     col = Treatment,
@@ -35,4 +37,8 @@ CO2 %>%
   ) %>%
   add_p() %>%
   bold_labels()
+CO2_tab
 
+CO2_tab |>
+  as_gt() |> 
+    gt::gtsave(filename = "CO2_table.docx")

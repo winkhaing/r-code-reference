@@ -1,0 +1,7 @@
+install.packages("MatchIt")
+library(MatchIt)
+data("lalonde")
+table(lalonde$treat)
+mout1<-matchit(treat~age+educ+race+married+nodegree+re74+re75, data=lalonde, method="nearest", distance="glm")
+ladondem<-match.data(mout1)
+table(ladondem$treat)
