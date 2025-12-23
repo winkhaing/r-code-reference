@@ -1,0 +1,48 @@
+---
+title: "Calculate OR"
+format: html
+editor: visual
+---
+
+```{r}
+pacman::p_load(epiR, tidyverse)
+library(epiR)
+library(tidyverse)
+
+ae01 <- tibble::tibble(
+ aebodsys = c("Cardiovascular", "Cardiovascular", "Respiratory", "Respiratory"),
+ trt = c("Drug A", "Placebo", "Drug A", "Placebo"),
+ No_Event = c(90, 95, 85, 90),
+ Event = c(10, 5, 15, 10)
+)
+
+listoflsit <- ae01 %>% group_split(aebodsys) %>% setNames(unique(ae01$aebodsys))
+
+or <- purrr::map2(1:length(listoflsit), names(listoflsit) ,.f= function(x,y) {
+ # browser()
+a <- listoflsit[[x]][4]$Event[1]
+b <- listoflsit[[x]][3]$No_Event[1]
+c <- listoflsit[[x]][4]$Event[2]
+d <- listoflsit[[x]][3]$No_Event[2]
+
+
+mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE,
+ dimnames = list(Treatment = c("Drug", "Placebo"),
+ Outcome = c("Event", "No Event")))
+
+
+lst <- epi.2by2(mat, method = "cohort.count", conf.level = 0.95)
+
+df <- tibble::tibble(aebodsys=y,
+ estimate=lst$massoc.detail$OR.strata.wald$est,
+ lower=lst$massoc.detail$OR.strata.wald$lower,
+ upper=lst$massoc.detail$OR.strata.wald$upper,
+ pvalue=lst$massoc.detail$chi2.strata.fisher$p.value.2s)
+
+return(df)
+
+})
+
+finaldf <- do.call(bind_rows, or)
+finaldf
+```

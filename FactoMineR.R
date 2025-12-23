@@ -1,0 +1,7 @@
+install.packages("FactoMineR")
+install.packages("FactoInvestigate")
+library(FactoMineR)
+library(FactoInvestigate)
+data(decathlon)
+res = PCA(decathlon, quanti.sup = 11:12, quali.sup=13, graph=FALSE)
+Investigate(res)
